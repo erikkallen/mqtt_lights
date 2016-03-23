@@ -2,6 +2,10 @@
 #include <iostream>
 #include <string.h>
 #include "NewRemoteTransmitter.h"
+#include "json.hpp"
+
+// for convenience
+using json = nlohmann::json;
 
 class MQTT : public mosqpp::mosquittopp
 {
@@ -18,6 +22,7 @@ private:
     void on_disconnect(int rc);
     void on_publish(int mid);
     void on_message(const struct mosquitto_message *message);
+
 public:
     MQTT(const char *id, const char * _topic, const char *host, int port);
     ~MQTT();

@@ -1,5 +1,9 @@
 #include "mqtt.h"
 #include <stdio.h>
+#include "json.hpp"
+
+// for convenience
+using json = nlohmann::json;
 
 int main(int argc, char const *argv[]) {
     /* code */

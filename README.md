@@ -11,3 +11,4 @@ It is designed to be run on a Raspberry Pi
 * libmosquittopp (sudo apt-get install libmosquittopp-dev)
 
 Most of the code for controlling the radio I found on http://weejewel.tweakblogs.net/blog/8665/lampen-schakelen-met-een-raspberry-pi
+Signal and slot code from https://github.com/pbhogan/Signals by Patrick Hogan

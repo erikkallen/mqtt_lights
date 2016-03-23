@@ -1,25 +1,25 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS= --std=c++11
-LDFLAGS= -lwiringPi -lmosquittopp
+CFLAGS= -ggdb -O0 --std=c99 `pkg-config --cflags json-c`
+LDFLAGS= -lmosquitto -ljson-c #-lwiringPi
 LDLIBS=
 
-SRCS=mqtt.cpp main.cpp NewRemoteTransmitter.cpp
-OBJS=$(subst .cpp,.o,$(SRCS))
+SRCS=main.c switch.c
+OBJS=$(subst .c,.o,$(SRCS))
 
 TARGET=mqtt
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
 
 depend: .depend
 
 .depend: $(SRCS)
 	rm -f ./.depend
-	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+	$(CC) $(CFLAGS) -MM $^>>./.depend;
 
 clean:
 	$(RM) $(OBJS)
