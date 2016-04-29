@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 RM=rm -f
 CFLAGS= -ggdb -O0 --std=c99 `pkg-config --cflags json-c`
-LDFLAGS= -lmosquitto -ljson-c #-lwiringPi
+LDFLAGS= -L/usr/local/lib -lmosquitto -ljson-c -lyaml #-lwiringPi
 LDLIBS=
 
 SRCS=main.c switch.c

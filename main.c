@@ -67,13 +67,15 @@ int main(int argc, char *argv[])
 
     json_object * jobj = json_tokener_parse(config_j);
 
-    struct switch_ctx ** switches;
+    struct switch_ctx * switches;
     int num_switches;
-    json_parse(jobj, switches, &num_switches);
+    json_parse(jobj, &switches, &num_switches);
+
+    printf("After parse %p\n", switches);
 
     switches_print(switches,num_switches);
 
-    free(switches);
+    //free(switches);
     /* kaku_init(kctx, KAKU_ADDR,KAKU_PIN,260,3);
     uint8_t reconnect = true;
     char clientid[24];
@@ -153,28 +155,20 @@ void json_parse_array( json_object *jobj, char *key,struct switch_ctx ** switche
     int arraylen = json_object_array_length(jarray); /*Getting the length of the array*/
     printf("Array Length: %d\n",arraylen);
 
+    printf("Malloc switch array\n");
+    *switches = (struct switch_ctx *)malloc(sizeof(struct switch_ctx*) * arraylen);
+    *num_switches = arraylen;
 
-    if (strncmp(key,"lights", 6) == 0) {
-        printf("Malloc switch array\n");
-        switches = (struct switch_ctx **)malloc(sizeof(struct switch_ctx*) * arraylen);
-        *num_switches = arraylen;
-    } else {
-        printf(":( Key: %s\n",key);
-    }
+    printf("%p\n", switches);
+
     int i;
     json_object * jvalue;
 
     for (i=0; i< arraylen; i++){
         jvalue = json_object_array_get_idx(jarray, i); /*Getting the array element at position i*/
         type = json_object_get_type(jvalue);
-        if (type == json_type_array) {
-            json_parse_array(jvalue, NULL,switches,num_switches);
-        }
-        else if (type != json_type_object) {
-            printf("value[%d]: ",i);
-            print_json_value(jvalue);
-        }
-        else {
+        if (type == json_type_object) {
+            printf("Found light object\n");
             json_value_parse(jvalue,switches[i]);
         }
     }
@@ -182,32 +176,49 @@ void json_parse_array( json_object *jobj, char *key,struct switch_ctx ** switche
 
 void json_value_parse(json_object * jobj,struct switch_ctx * switches) {
     enum json_type type;
-    switches = (struct switch_ctx *)malloc(sizeof(struct switch_ctx));
+    //switches = (struct switch_ctx *)malloc(sizeof(struct switch_ctx));
+    memset(switches, 0,sizeof(struct switch_ctx));
+    printf("in value parse %p\n", switches);
     json_object_object_foreach(jobj, key, val) { /*Passing through every array element*/
-        printf("%s: ",key);
         if (strcmp(key,"state_topic")==0) {
             if (json_object_get_type(val) == json_type_string) {
-                printf("str: %s strlen: %d",json_object_get_string(val),json_object_get_string_len(val));
+                printf("key: %s\n",key);
+                printf("str: %s \nstrlen: %d\n",json_object_get_string(val),json_object_get_string_len(val));
                 strncpy(switches->state_topic, json_object_get_string(val),json_object_get_string_len(val));
             }
-        } else if (strcmp(key,"command_topic")==0) {
+        }
+        if (strcmp(key,"command_topic")==0) {
             if (json_object_get_type(val) == json_type_string) {
+                printf("key: %s\n",key);
+                printf("str: %s \nstrlen: %d\n",json_object_get_string(val),json_object_get_string_len(val));
                 strncpy(switches->cmd_topic, json_object_get_string(val),json_object_get_string_len(val));
             }
-        } else if (strcmp(key,"brightness_topic")==0) {
+        }
+        if (strcmp(key,"brightness_topic")==0) {
             if (json_object_get_type(val) == json_type_string) {
+                printf("key: %s\n",key);
+                printf("str: %s \nstrlen: %d\n",json_object_get_string(val),json_object_get_string_len(val));
                 strncpy(switches->brightness_topic, json_object_get_string(val),json_object_get_string_len(val));
             }
-        } else if (strcmp(key,"brightness_state_topic")==0) {
+        }
+        if (strcmp(key,"brightness_state_topic")==0) {
             if (json_object_get_type(val) == json_type_string) {
+                printf("key: %s\n",key);
+                printf("str: %s \nstrlen: %d\n",json_object_get_string(val),json_object_get_string_len(val));
                 strncpy(switches->brightness_state_topic, json_object_get_string(val),json_object_get_string_len(val));
             }
-        } else if (strcmp(key,"address")==0) {
+        }
+        if (strcmp(key,"address")==0) {
             if (json_object_get_type(val) == json_type_int) {
+                printf("key: %s\n",key);
+                printf("int: %d\n",json_object_get_int(val));
                 switches->address = json_object_get_int(val);
             }
-        } else if (strcmp(key,"device")==0) {
+        }
+        if (strcmp(key,"device")==0) {
             if (json_object_get_type(val) == json_type_int) {
+                printf("key: %s\n",key);
+                printf("int: %d\n",json_object_get_int(val));
                 switches->device = json_object_get_int(val);
             }
         }
@@ -217,24 +228,17 @@ void json_value_parse(json_object * jobj,struct switch_ctx * switches) {
 /*Parsing the json object*/
 void json_parse(json_object * jobj,struct switch_ctx ** switches, int * num_switches) {
     enum json_type type;
-    json_object_object_foreach(jobj, key, val) { /*Passing through every array element*/
-        printf("%s: ",key);
+    printf("Parsing config\n");
 
-        type = json_object_get_type(val);
-        switch (type) {
-            case json_type_boolean:
-            case json_type_double:
-            case json_type_int:
-            case json_type_null:
-            case json_type_string: print_json_value(val);
-            break;
-            case json_type_object: printf("json_type_object\n");
-            json_object_object_get_ex(jobj, key, &jobj);
-            json_parse(jobj,switches,num_switches);
-            break;
-            case json_type_array: printf("type: json_type_array, ");
-            json_parse_array(jobj, key, switches,num_switches);
-            break;
+
+    json_object_object_foreach(jobj, key, val) { /*Passing through every array element*/
+        if (strcmp("lights", key) == 0) {
+            printf("%s found\n",key);
+            type = json_object_get_type(val);
+            if (type == json_type_array) {
+                printf("parse lights array\n");
+                json_parse_array(jobj, key, switches,num_switches);
+            }
         }
     }
 }

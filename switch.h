@@ -24,6 +24,6 @@ void switch_init(struct switch_ctx * ctx,
                 char * brightness_topic,
                 char * brightness_state_topic);
 
-void switches_print(struct switch_ctx ** switches,int num_switches);
+void switches_print(struct switch_ctx * switches,int num_switches);
 
 #endif

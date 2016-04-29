@@ -1,0 +1,16 @@
+---
+  lights:
+    -
+      name: "Livingroom"
+      state_topic: "livingroom/light/state"
+      command_topic: "livingroom/light/set"
+      brightness_topic: "livingroom/light/brightness"
+      brightness_state_topic: "livingroom/light/brightness_state"
+      address: 123
+      device: 2
+    -
+      name: "Hallway"
+      state_topic: "hallway/light/state"
+      command_topic: "hallway/light/set"
+      address: 123
+      device: 3

@@ -1,3 +1,5 @@
 mqtt
 *.o
 .depend
+.DS_Store
+configuration.yaml
